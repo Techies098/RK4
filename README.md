@@ -17,7 +17,18 @@ Aplicación interactiva que demuestra los métodos de **Euler**, **RK2 (Punto Me
 
 ---
 
-## 🚀 Puesta en Marcha (paso a paso)
+## 🚀 Puesta en Marcha
+
+### Opción Rápida (Windows): Doble Clic ⚡
+Simplemente haz **doble clic en el archivo `iniciar.bat`**. 
+Este script se encarga automáticamente de:
+1. Verificar que Python esté instalado.
+2. Instalar las dependencias de `requirements.txt` que falten.
+3. Abrir la aplicación interactiva en tu navegador.
+
+---
+
+### Opción Manual por Terminal (paso a paso)
 
 ### Paso 1 · Abrir una terminal
 
