@@ -703,10 +703,10 @@ def generar_html_simulador(D, h0, d, Cd, g, k, t_vaciado, t_final, t_rk4, y_rk4,
                 graphCtx.font = 'bold 10px sans-serif';
                 graphCtx.fillText('Tiempo t [s]', pL + plotW / 2, H - 4);
 
-                // 1. Curva teórica completa punteada gris
-                graphCtx.strokeStyle = '#CBD5E1';
-                graphCtx.lineWidth = 1.5;
-                graphCtx.setLineDash([3, 3]);
+                // 1. Curva analítica exacta completa (Línea continua negra / gris oscura)
+                graphCtx.strokeStyle = '#0F172A';
+                graphCtx.lineWidth = 2.0;
+                graphCtx.setLineDash([]);
                 graphCtx.beginPath();
                 curva.forEach((pt, idx) => {{
                     const x = mapX(pt.t);
@@ -715,46 +715,85 @@ def generar_html_simulador(D, h0, d, Cd, g, k, t_vaciado, t_final, t_rk4, y_rk4,
                     else graphCtx.lineTo(x, y);
                 }});
                 graphCtx.stroke();
-                graphCtx.setLineDash([]);
 
-                // 2. Trayectoria recorrida hasta el momento actual en azul
-                graphCtx.strokeStyle = '#2563EB';
-                graphCtx.lineWidth = 2.5;
-                graphCtx.beginPath();
-                let started = false;
-                for (let i = 0; i < curva.length; i++) {{
-                    const pt = curva[i];
-                    if (pt.t <= tActual) {{
-                        const x = mapX(pt.t);
-                        const y = mapY(pt.h);
-                        if (!started) {{
-                            graphCtx.moveTo(x, y);
-                            started = true;
+                // 2. Trazo numérico de Runge-Kutta 4 (RK4) hasta el tiempo actual (Línea azul brillante con puntos)
+                if (puntos_rk4 && puntos_rk4.length > 0) {{
+                    graphCtx.strokeStyle = '#2563EB';
+                    graphCtx.lineWidth = 2.5;
+                    graphCtx.beginPath();
+                    let pt0 = puntos_rk4[0];
+                    graphCtx.moveTo(mapX(pt0.t), mapY(pt0.h));
+
+                    for (let i = 1; i < puntos_rk4.length; i++) {{
+                        const prev = puntos_rk4[i-1];
+                        const curr = puntos_rk4[i];
+                        if (curr.t <= tActual) {{
+                            graphCtx.lineTo(mapX(curr.t), mapY(curr.h));
+                        }} else if (prev.t < tActual) {{
+                            // Interpolar segmento entre pasos de RK4
+                            const frac = (tActual - prev.t) / (curr.t - prev.t);
+                            const hInterp = prev.h + frac * (curr.h - prev.h);
+                            graphCtx.lineTo(mapX(tActual), mapY(hInterp));
+                            break;
                         }} else {{
-                            graphCtx.lineTo(x, y);
+                            break;
                         }}
-                    }} else {{
-                        const xNow = mapX(tActual);
-                        const yNow = mapY(hActual);
-                        if (started) graphCtx.lineTo(xNow, yNow);
-                        break;
                     }}
-                }}
-                graphCtx.stroke();
+                    graphCtx.stroke();
 
-                // 3. Puntos calculados de RK4 alcanzados
-                if (puntos_rk4) {{
+                    // Puntos discretos de RK4 evaluados
                     puntos_rk4.forEach(pt => {{
                         if (pt.t <= tActual) {{
                             const px = mapX(pt.t);
                             const py = mapY(pt.h);
                             graphCtx.fillStyle = '#1E3A8A';
                             graphCtx.beginPath();
-                            graphCtx.arc(px, py, 3.5, 0, Math.PI * 2);
+                            graphCtx.arc(px, py, 4.5, 0, Math.PI * 2);
                             graphCtx.fill();
+                            graphCtx.strokeStyle = '#FFFFFF';
+                            graphCtx.lineWidth = 1.5;
+                            graphCtx.stroke();
                         }}
                     }});
                 }}
+
+                // 3. Leyenda en la esquina superior derecha
+                const legX = pL + plotW - 135;
+                const legY = pT + 6;
+                graphCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                graphCtx.fillRect(legX - 6, legY - 4, 138, 40);
+                graphCtx.strokeStyle = '#CBD5E1';
+                graphCtx.lineWidth = 1;
+                graphCtx.strokeRect(legX - 6, legY - 4, 138, 40);
+
+                // Línea negra: Exacta
+                graphCtx.strokeStyle = '#0F172A';
+                graphCtx.lineWidth = 2.0;
+                graphCtx.beginPath();
+                graphCtx.moveTo(legX, legY + 8);
+                graphCtx.lineTo(legX + 22, legY + 8);
+                graphCtx.stroke();
+
+                graphCtx.fillStyle = '#0F172A';
+                graphCtx.font = 'bold 9.5px sans-serif';
+                graphCtx.textAlign = 'left';
+                graphCtx.fillText('Solución Exacta', legX + 28, legY + 11);
+
+                // Línea azul + nodo: RK4
+                graphCtx.strokeStyle = '#2563EB';
+                graphCtx.lineWidth = 2.2;
+                graphCtx.beginPath();
+                graphCtx.moveTo(legX, legY + 24);
+                graphCtx.lineTo(legX + 22, legY + 24);
+                graphCtx.stroke();
+
+                graphCtx.fillStyle = '#1E3A8A';
+                graphCtx.beginPath();
+                graphCtx.arc(legX + 11, legY + 24, 3.5, 0, Math.PI * 2);
+                graphCtx.fill();
+
+                graphCtx.fillStyle = '#1E3A8A';
+                graphCtx.fillText('Método RK4', legX + 28, legY + 27);
 
                 // 4. Cursor del momento actual (Punto rojo pulsante)
                 const curX = mapX(tActual);
