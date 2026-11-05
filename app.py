@@ -286,7 +286,7 @@ html_simulador = generar_html_simulador(
     t_rk4=t_rk4,
     y_rk4=y_rk4
 )
-components.html(html_simulador, height=520, scrolling=False)
+components.html(html_simulador, height=620, scrolling=False)
 st.markdown("---")
 
 
