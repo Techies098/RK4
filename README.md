@@ -75,9 +75,11 @@ En la terminal donde la ejecutaste, presiona **Ctrl + C**.
 ```
 Metodos/
 ├── app.py                  ← Interfaz web (Streamlit) - ARCHIVO PRINCIPAL
+├── simulacion_widget.py    ← Simulador dinámico interactivo en tiempo real (animación del tanque)
 ├── metodos.py              ← Métodos numéricos (Euler, RK2, RK4) - lógica de cálculo
 ├── pruebas.py              ← Pruebas de validación automáticas
 ├── requirements.txt        ← Lista de librerías necesarias
+├── iniciar.bat             ← Lanzador con doble clic para Windows
 ├── README.md               ← Este documento
 ├── generar_diagrama.py     ← Script que genera el diagrama del tanque
 ├── assets/

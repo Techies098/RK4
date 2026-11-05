@@ -13,6 +13,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import streamlit as st
+import streamlit.components.v1 as components
+
+from simulacion_widget import generar_html_simulador
 
 from metodos import (
     calcular_parametros,
@@ -200,13 +203,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Diagrama esquemático del tanque cilíndrico con orificio
-ruta_diagrama = os.path.join(os.path.dirname(__file__), "assets", "diagrama_tanque.png")
-if os.path.exists(ruta_diagrama):
-    col_img_izq, col_img_centro, col_img_der = st.columns([1, 2, 1])
-    with col_img_centro:
-        st.image(ruta_diagrama, caption="Esquema del tanque cilíndrico con orificio de descarga (Ley de Torricelli)")
-
 # Métricas resumen mostradas ANTES de los resultados
 st.markdown("### 📋 Propiedades Geométricas e Hidráulicas Calculadas")
 col1, col2, col3, col4, col5 = st.columns(5)
@@ -273,6 +269,25 @@ except TanqueVaciadoError as err:
 except Exception as ex:
     st.error(f"❌ Error inesperado durante la simulación: {str(ex)}")
     st.stop()
+
+
+# =============================================================================
+# SIMULACIÓN DINÁMICA INTERACTIVA EN TIEMPO REAL
+# =============================================================================
+html_simulador = generar_html_simulador(
+    D=D,
+    h0=h0,
+    d=d,
+    Cd=Cd,
+    g=g_const,
+    k=k_descarga,
+    t_vaciado=t_vaciado_s,
+    t_final=t_final,
+    t_rk4=t_rk4,
+    y_rk4=y_rk4
+)
+components.html(html_simulador, height=520, scrolling=False)
+st.markdown("---")
 
 
 # =============================================================================
